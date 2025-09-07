@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import GUI from 'lil-gui';
@@ -75,27 +75,46 @@ const SombrasEscena = () => {
         scene.add(pointLight);
 
         /**
-         * Material compartido (para que GUI lo controle)
+         * Materials - Diferentes tipos de materiales
          */
-        const material = new THREE.MeshStandardMaterial({
+        const standardMaterial = new THREE.MeshStandardMaterial({
             color: 0x8888ff,
             metalness: 0.3,
             roughness: 0.6
         });
 
+        const phongMaterial = new THREE.MeshPhongMaterial({
+            color: 0x8888ff,
+            shininess: 100,
+            specular: 0x111111
+        });
+
+        const lambertMaterial = new THREE.MeshLambertMaterial({
+            color: 0x8888ff
+        });
+
+        // Material inicial
+        let currentMaterial = standardMaterial;
+
         /**
          * Objects
          */
-        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), material);
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), currentMaterial);
         sphere.position.x = -1.5;
         sphere.castShadow = true;
+        sphere.receiveShadow = true;
 
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+        const cube = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), currentMaterial);
+        cube.position.x = 1.5;
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshStandardMaterial({ color: 0x666666 }));
         plane.rotation.x = -Math.PI * 0.5;
         plane.position.y = -0.65;
         plane.receiveShadow = true;
 
-        scene.add(sphere, plane);
+        scene.add(sphere, cube, plane);
 
         /**
          * Controls
@@ -109,15 +128,75 @@ const SombrasEscena = () => {
         const gui = new GUI();
 
         const lightFolder = gui.addFolder("Luces");
-        //lightFolder.add(ambientLight, "intensity").min(0).max(3).step(0.001).name("Ambient Intensity");
-        //lightFolder.add(directionalLight, "intensity").min(0).max(3).step(0.001).name("Directional Intensity");
-        //lightFolder.add(directionalLight.position, "x").min(-5).max(5).step(0.001).name("DirLight X");
-        //lightFolder.add(directionalLight.position, "y").min(-5).max(5).step(0.001).name("DirLight Y");
-        lightFolder.add(directionalLight.position, "z").min(-5).max(5).step(0.001).name("DirLight Z");
+        lightFolder.open();
+        lightFolder.add(ambientLight, "intensity").min(0).max(2).step(0.01).name("Ambient Intensity");
+        lightFolder.add(directionalLight, "intensity").min(0).max(5).step(0.01).name("Directional Intensity");
+        lightFolder.add(pointLight, "intensity").min(0).max(3).step(0.01).name("Point Intensity");
 
-        const matFolder = gui.addFolder("Materiales");
-        matFolder.add(material, "metalness").min(0).max(1).step(0.01).name("Metalness");
-        matFolder.add(material, "roughness").min(0).max(1).step(0.01).name("Roughness");
+        // Carpeta para selección de material
+        const materialFolder = gui.addFolder("Tipo de Material");
+        materialFolder.open();
+        
+        const materialOptions = {
+            material: "Standard"
+        };
+
+        materialFolder.add(materialOptions, "material", ["Standard", "Phong", "Lambert"])
+            .name("Material Type")
+            .onChange((value) => {
+                let newMaterial;
+                switch(value) {
+                    case "Standard":
+                        newMaterial = standardMaterial;
+                        break;
+                    case "Phong":
+                        newMaterial = phongMaterial;
+                        break;
+                    case "Lambert":
+                        newMaterial = lambertMaterial;
+                        break;
+                }
+                
+                // Aplicar el nuevo material a ambos objetos
+                sphere.material = newMaterial;
+                cube.material = newMaterial;
+                currentMaterial = newMaterial;
+                
+                // Actualizar controles de propiedades
+                updateMaterialControls();
+            });
+
+        // Carpeta para propiedades del material
+        const propertiesFolder = gui.addFolder("Propiedades del Material");
+        propertiesFolder.open();
+
+        // Función para actualizar controles según el material
+        function updateMaterialControls() {
+            // Limpiar controles existentes
+            propertiesFolder.children.forEach(child => {
+                if (child._name !== "Material Type") {
+                    propertiesFolder.remove(child);
+                }
+            });
+
+            if (currentMaterial === standardMaterial) {
+                // Controles para MeshStandardMaterial
+                propertiesFolder.add(standardMaterial, "metalness").min(0).max(1).step(0.01).name("Metalness");
+                propertiesFolder.add(standardMaterial, "roughness").min(0).max(1).step(0.01).name("Roughness");
+                propertiesFolder.addColor(standardMaterial, "color").name("Color");
+            } else if (currentMaterial === phongMaterial) {
+                // Controles para MeshPhongMaterial
+                propertiesFolder.add(phongMaterial, "shininess").min(0).max(200).step(1).name("Shininess");
+                propertiesFolder.addColor(phongMaterial, "specular").name("Specular Color");
+                propertiesFolder.addColor(phongMaterial, "color").name("Color");
+            } else if (currentMaterial === lambertMaterial) {
+                // Controles para MeshLambertMaterial
+                propertiesFolder.addColor(lambertMaterial, "color").name("Color");
+            }
+        }
+
+        // Inicializar controles
+        updateMaterialControls();
 
         /**
          * Resize Handling
@@ -142,7 +221,9 @@ const SombrasEscena = () => {
             const elapsedTime = clock.getElapsedTime();
 
             sphere.rotation.y = 0.1 * elapsedTime;
-            sphere.rotation.x = 0.15 * elapsedTime;
+            sphere.rotation.x = 0.05 * elapsedTime;
+            cube.rotation.y = 0.1 * elapsedTime;
+            cube.rotation.x = 0.05 * elapsedTime;
 
             controls.update();
             renderer.render(scene, camera);

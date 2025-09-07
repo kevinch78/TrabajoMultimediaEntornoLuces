@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from 'three';
@@ -14,6 +14,9 @@ const ThreeScene = () => {
     useEffect(() => {
         // Verificar que el elemento existe
         if (!mountRef.current) return;
+        
+        // Guardar referencia para el cleanup
+        const mountElement = mountRef.current;
 
         /**
          * Base
@@ -39,7 +42,7 @@ const ThreeScene = () => {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(sizes.width, sizes.height);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        mountRef.current.appendChild(renderer.domElement);
+        mountElement.appendChild(renderer.domElement);
 
         // Agregar el modelo GLB a la escena
         scene.add(gltf.scene);
@@ -125,13 +128,20 @@ const ThreeScene = () => {
          * GUI (Lil-GUI)
          */
         const gui = new GUI();
+
         // Luz ambiental: intensidad y color
+        //Crea un slider en la GUI que controla la propiedad intensity de ambientLight
         gui.add(ambientLight, "intensity", 0, 3, 0.1).name("Ambient Intensity");
+        //Añade un selector de color en la GUI para la luz ambiental
         gui.addColor({ color: ambientLight.color.getHex() }, "color")
+        //Añade un nombre a la luz ambiental y un onChange para que cuando se cambie el 
+        //color, se actualice el color de la luz ambiental
             .name("Ambient Color")
+            //Cada vez que el usuario elige un color en la GUI, esta función se ejecuta.
             .onChange((value) => ambientLight.color.set(value));
 
         // Luz puntual: intensidad
+        //Crea un slider en la GUI que controla la propiedad intensity de pointLight
         gui.add(pointLight, "intensity", 0, 5, 0.1).name("Point Intensity");
 
         /**
@@ -177,9 +187,11 @@ const ThreeScene = () => {
         return () => {
             gui.destroy();
             window.removeEventListener('resize', handleResize);
-            mountRef.current.removeChild(renderer.domElement);
+            if (mountElement) {
+                mountElement.removeChild(renderer.domElement);
+            }
         };
-    }, []);
+    }, [gltf.scene]);
 
     return <div ref={mountRef} />;
 };
