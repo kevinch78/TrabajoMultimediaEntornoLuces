@@ -3,20 +3,16 @@ import React, { useRef, useEffect, useState } from "react";
 import { TextureLoader } from "three";
 
 const Objgrupop = () => {
-  // Cargar texturas
   const cubeTexture = useLoader(TextureLoader, "/assets/texture1.jpg");
   const sphereTexture = useLoader(TextureLoader, "/assets/texture2.jpg");
   const coneTexture = useLoader(TextureLoader, "/assets/alpha.png");
 
-  // Refs para los grupos
   const group1Ref = useRef();
   const group2Ref = useRef();
   const group3Ref = useRef();
 
-  // Estado de rotación
   const [rotation, setRotation] = useState(0.01);
 
-  // Animación
   useEffect(() => {
     let animationFrameId;
     const animate = () => {
@@ -31,13 +27,11 @@ const Objgrupop = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [rotation]);
 
-  // Evento de clic → acelera o desacelera
   const handleClick = () => {
     setRotation(rotation === 0.01 ? 0.07 : 0.01);
     console.log("Click:", rotation);
   };
 
-  // 📌 Función para crear los objetos
   const Objetos = ({ position }) => (
     <>
       {/* Cubo */}

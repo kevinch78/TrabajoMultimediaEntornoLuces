@@ -3,17 +3,14 @@ import React, { useRef, useEffect } from "react";
 import { TextureLoader } from "three";
 
 const Objgrupop = () => {
-  // ✅ Cargar texturas
   const cubeTexture = useLoader(TextureLoader, "/assets/texture1.jpg");
   const sphereTexture = useLoader(TextureLoader, "/assets/texture2.jpg");
   const coneTexture = useLoader(TextureLoader, "/assets/alpha.png");
 
-  // ✅ Referencias a cada grupo
   const group1Ref = useRef();
   const group2Ref = useRef();
   const group3Ref = useRef();
 
-  // ✅ Animación para girar cada grupo
   useEffect(() => {
     let animationFrameId;
     const animate = () => {
@@ -27,7 +24,6 @@ const Objgrupop = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  // ✅ Transformaciones iniciales a cada grupo
   useEffect(() => {
     if (group1Ref.current) {
       group1Ref.current.rotation.y = Math.PI / 4;

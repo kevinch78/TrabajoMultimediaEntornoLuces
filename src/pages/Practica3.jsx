@@ -2,7 +2,7 @@
 import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
-import Objgrupop from "../components/objgrupop"; // tu componente con objetos/grupos
+import Objgrupop from "../components/objgrupop"; 
 
 const Practica3 = () => {
   return (
