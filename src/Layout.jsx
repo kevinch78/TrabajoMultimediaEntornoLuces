@@ -39,6 +39,7 @@ function Layout() {
                   <Dropdown.Item href="/laboratorio1">Albedo - Alpha - Transparent</Dropdown.Item>
                   <Dropdown.Item href="/practica1">practica1</Dropdown.Item>
                   <Dropdown.Item href="/practica2">practica2</Dropdown.Item>
+                  <Dropdown.Item href="/practica3">practica3</Dropdown.Item>
                   <Dropdown.Item href="/practica4">practica4</Dropdown.Item>
                   <Dropdown.Item href="/practica5">practica5</Dropdown.Item>
                   <Dropdown.Item href="/practica6">practica6</Dropdown.Item>  

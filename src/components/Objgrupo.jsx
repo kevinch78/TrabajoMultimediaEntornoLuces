@@ -57,7 +57,7 @@ const Objgrupo = () => {
           ref={esfeRef}
           position={[0, 2, 0]}
           castShadow
-          onPointerDown={handleClick} // Asegura que el clic sea detectado
+          onPointerDown={handleClick} 
         >
           <sphereGeometry args={[1.5, 32, 32]} />
           <meshStandardMaterial map={sphereTexture} />
